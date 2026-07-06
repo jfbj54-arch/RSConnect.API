@@ -1,0 +1,7 @@
+[service]
+name = "rsconnect-api"
+start = "dotnet RSConnect.API.dll"
+port = 8080
+
+[env]
+ASPNETCORE_ENVIRONMENT = "Production"
