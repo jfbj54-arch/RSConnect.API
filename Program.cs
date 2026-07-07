@@ -1,46 +1,40 @@
 using Microsoft.EntityFrameworkCore;
 using RSConnect.API.Data;
-using RSConnect.API.Repositories;
 using RSConnect.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Porta obrigatória para Railway (AGORA É 8888)
-builder.WebHost.UseKestrel();
-builder.WebHost.UseUrls("http://0.0.0.0:8888");
-
-// Banco de dados PostgreSQL do Railway
+// Configura o DbContext com a connection string do Railway
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql("Host=hayabusa.proxy.rlwy.net;Port=49725;Database=railway;Username=postgres;Password=ozvxHYcQqWFMriiSpmzSPiMeBoXPySNV;SSL Mode=Require;Trust Server Certificate=True")
-);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CORS liberado
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-
-// Injeção de dependência
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+// Registra os serviços
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
+// Adiciona controllers
 builder.Services.AddControllers();
+
+// Adiciona Swagger (opcional, mas útil)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseRouting();
-app.UseCors("AllowAll");
+// Ativa Swagger somente em desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Permite requisições HTTP
+app.UseHttpsRedirection();
+
+// Permite autorização (se usar)
 app.UseAuthorization();
+
+// Mapeia controllers
 app.MapControllers();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
+// Inicia a aplicação
 app.Run();
