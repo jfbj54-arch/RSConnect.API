@@ -5,8 +5,8 @@ using RSConnect.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// PEGAR CONNECTION STRING DO RAILWAY
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+// PEGAR CONNECTION STRING DO RAILWAY (OPÇÃO B)
+var connectionString = builder.Configuration["DATABASE_URL"];
 
 // CONFIGURAÇÃO DO BANCO (Postgres Railway)
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -16,16 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-// CONTROLLERS
 builder.Services.AddControllers();
-
-// SWAGGER
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// SWAGGER EM DESENVOLVIMENTO
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
