@@ -5,16 +5,16 @@ using RSConnect.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔥 Porta obrigatória para Railway
+// Porta obrigatória para Railway (AGORA É 8888)
 builder.WebHost.UseKestrel();
-builder.WebHost.UseUrls("http://0.0.0.0:8080");
+builder.WebHost.UseUrls("http://0.0.0.0:8888");
 
-// 🔥 Banco de dados PostgreSQL do Railway
+// Banco de dados PostgreSQL do Railway
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql("Host=hayabusa.proxy.rlwy.net;Port=49725;Database=railway;Username=postgres;Password=ozvxHYcQqWFMriiSpmzSPiMeBoXPySNV;SSL Mode=Require;Trust Server Certificate=True")
 );
 
-// 🔥 CORS liberado
+// CORS liberado
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 🔥 Injeção de dependência
+// Injeção de dependência
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
@@ -35,13 +35,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🔥 Pipeline
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 
-// 🔥 Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
