@@ -16,23 +16,51 @@ namespace RSConnect.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() =>
-            Ok(await _service.GetAll());
+        public async Task<IActionResult> Get()
+        {
+            var usuarios = await _service.GetAll();
+            return Ok(usuarios);
+        }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id) =>
-            Ok(await _service.GetById(id));
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var usuario = await _service.GetById(id);
+            if (usuario == null)
+                return NotFound(new { message = "Usuário não encontrado" });
+
+            return Ok(usuario);
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Usuario usuario) =>
-            Ok(await _service.Create(usuario));
+        public async Task<IActionResult> Create([FromBody] Usuario usuario)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        [HttpPut]
-        public async Task<IActionResult> Update(Usuario usuario) =>
-            Ok(await _service.Update(usuario));
+            var novoUsuario = await _service.Create(usuario);
+            return CreatedAtAction(nameof(GetById), new { id = novoUsuario.Id }, novoUsuario);
+        }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) =>
-            Ok(await _service.Delete(id));
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Usuario usuario)
+        {
+            if (id != usuario.Id)
+                return BadRequest(new { message = "ID do usuário não corresponde ao ID da URL" });
+
+            var atualizado = await _service.Update(usuario);
+            return Ok(atualizado);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var removido = await _service.Delete(id);
+
+            if (!removido)
+                return NotFound(new { message = "Usuário não encontrado" });
+
+            return Ok(new { message = "Usuário removido com sucesso" });
+        }
     }
 }
