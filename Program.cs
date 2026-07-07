@@ -4,37 +4,37 @@ using RSConnect.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configura o DbContext com a connection string do Railway
+// CONFIGURAÇÃO DO BANCO (Postgres Railway)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Registra os serviços
+// INJEÇÃO DE DEPENDÊNCIA DOS SERVIÇOS
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
-// Adiciona controllers
+// CONTROLLERS
 builder.Services.AddControllers();
 
-// Adiciona Swagger (opcional, mas útil)
+// SWAGGER (opcional, mas útil)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Ativa Swagger somente em desenvolvimento
+// SWAGGER SOMENTE EM DESENVOLVIMENTO
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Permite requisições HTTP
+// HTTPS REDIRECTION (não quebra no Railway)
 app.UseHttpsRedirection();
 
-// Permite autorização (se usar)
+// AUTORIZAÇÃO (se usar)
 app.UseAuthorization();
 
-// Mapeia controllers
+// MAPEIA OS CONTROLLERS
 app.MapControllers();
 
-// Inicia a aplicação
+// INICIA A API
 app.Run();
