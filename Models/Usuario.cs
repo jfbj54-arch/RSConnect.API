@@ -1,7 +1,10 @@
-public class Usuario
+namespace RSConnect.API.Models
 {
-    public int id { get; set; }
-    public string nome { get; set; }
-    public string email { get; set; }
-    public string Senha { get; set; }
+    public class Usuario
+    {
+        public int id { get; set; }
+        public string nome { get; set; }
+        public string email { get; set; }
+        public string Senha { get; set; }
+    }
 }
