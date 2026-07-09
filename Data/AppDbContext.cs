@@ -1,25 +1,41 @@
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+using Microsoft.EntityFrameworkCore;
+using RSConnect.API.Models;
+
+namespace RSConnect.API.Data
 {
-    modelBuilder.Entity<Usuario>(entity =>
+    public class AppDbContext : DbContext
     {
-        entity.ToTable("Usuarios"); // <-- CORRIGIDO
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
+        {
+        }
 
-        entity.HasKey(u => u.id);
+        public DbSet<Usuario> Usuarios { get; set; }
 
-        entity.Property(u => u.id)
-              .HasColumnName("id")
-              .ValueGeneratedOnAdd();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("Usuarios");
 
-        entity.Property(u => u.nome)
-              .HasColumnName("nome")
-              .IsRequired();
+                entity.HasKey(u => u.id);
 
-        entity.Property(u => u.email)
-              .HasColumnName("email")
-              .IsRequired();
+                entity.Property(u => u.id)
+                      .HasColumnName("id")
+                      .ValueGeneratedOnAdd();
 
-        entity.Property(u => u.Senha)
-              .HasColumnName("senha")
-              .IsRequired();
-    });
+                entity.Property(u => u.nome)
+                      .HasColumnName("nome")
+                      .IsRequired();
+
+                entity.Property(u => u.email)
+                      .HasColumnName("email")
+                      .IsRequired();
+
+                entity.Property(u => u.Senha)
+                      .HasColumnName("senha")
+                      .IsRequired();
+            });
+        }
+    }
 }
