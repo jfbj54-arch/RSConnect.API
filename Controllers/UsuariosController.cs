@@ -39,13 +39,13 @@ namespace RSConnect.API.Controllers
                 return BadRequest(ModelState);
 
             var novoUsuario = await _service.Create(usuario);
-            return CreatedAtAction(nameof(GetById), new { id = novoUsuario.Id }, novoUsuario);
+            return CreatedAtAction(nameof(GetById), new { id = novoUsuario.id }, novoUsuario);
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Usuario usuario)
         {
-            if (id != usuario.Id)
+            if (id != usuario.id)
                 return BadRequest(new { message = "ID do usuário não corresponde ao ID da URL" });
 
             var atualizado = await _service.Update(usuario);

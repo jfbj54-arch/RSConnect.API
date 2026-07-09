@@ -13,11 +13,15 @@ namespace RSConnect.API.Repositories
             _context = context;
         }
 
-        public async Task<List<Usuario>> GetAll() =>
-            await _context.Usuarios.ToListAsync();
+        public async Task<IEnumerable<Usuario>> GetAll()
+        {
+            return await _context.Usuarios.ToListAsync();
+        }
 
-        public async Task<Usuario> GetById(int id) =>
-            await _context.Usuarios.FindAsync(id);
+        public async Task<Usuario?> GetById(int id)
+        {
+            return await _context.Usuarios.FirstOrDefaultAsync(u => u.id == id);
+        }
 
         public async Task<Usuario> Create(Usuario usuario)
         {
@@ -35,8 +39,9 @@ namespace RSConnect.API.Repositories
 
         public async Task<bool> Delete(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null) return false;
+            var usuario = await GetById(id);
+            if (usuario == null)
+                return false;
 
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
