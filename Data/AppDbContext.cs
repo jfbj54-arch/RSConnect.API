@@ -16,7 +16,7 @@ namespace RSConnect.API.Data
         {
             modelBuilder.Entity<Usuario>(entity =>
             {
-                entity.ToTable("Usuarios");
+                entity.ToTable("usuarios"); // <-- TEM QUE SER MINÚSCULO
 
                 entity.HasKey(u => u.id);
 
