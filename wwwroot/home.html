@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>RS Connect - Home</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056c7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 id="titulo">Bem-vindo!</h2>
+
+    <button onclick="window.location.href='cadastro.html'">Cadastrar Usuário</button>
+    <button onclick="window.location.href='login.html'">Sair</button>
+</div>
+
+<script>
+    // Recupera o nome do usuário salvo no login
+    const nome = localStorage.getItem("usuarioNome");
+
+    if (nome) {
+        document.getElementById("titulo").innerText = "Bem-vindo, " + nome;
+    }
+</script>
+
+</body>
+</html>
