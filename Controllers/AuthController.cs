@@ -22,7 +22,8 @@ namespace RSConnect.API.Controllers
             if (usuario == null)
                 return Unauthorized(new { message = "Email não encontrado" });
 
-            if (usuario.senha != request.Senha)
+            // CORRIGIDO: Senha com S maiúsculo
+            if (usuario.Senha != request.Senha)
                 return Unauthorized(new { message = "Senha incorreta" });
 
             return Ok(new
