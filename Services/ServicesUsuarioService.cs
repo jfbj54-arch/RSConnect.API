@@ -22,6 +22,12 @@ namespace RSConnect.API.Services
             return _repository.GetById(id);
         }
 
+        // 🔥 NOVO MÉTODO PARA LOGIN
+        public Task<Usuario?> GetByEmail(string email)
+        {
+            return _repository.GetByEmail(email);
+        }
+
         public Task<Usuario> Create(Usuario usuario)
         {
             return _repository.Create(usuario);

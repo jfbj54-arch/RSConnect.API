@@ -23,6 +23,13 @@ namespace RSConnect.API.Repositories
             return await _context.Usuarios.FirstOrDefaultAsync(u => u.id == id);
         }
 
+        // 🔥 NOVO MÉTODO PARA LOGIN
+        public async Task<Usuario?> GetByEmail(string email)
+        {
+            return await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.email == email);
+        }
+
         public async Task<Usuario> Create(Usuario usuario)
         {
             _context.Usuarios.Add(usuario);

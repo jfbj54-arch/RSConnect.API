@@ -5,7 +5,7 @@ using RSConnect.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// PEGAR CONNECTION STRING DO RAILWAY (OPÇÃO B)
+// PEGAR CONNECTION STRING DO RAILWAY
 var connectionString = builder.Configuration["DATABASE_URL"];
 
 // CONFIGURAÇÃO DO BANCO (Postgres Railway)
@@ -22,13 +22,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// 🔥 IMPORTANTE: SERVIR ARQUIVOS HTML, CSS, JS
+app.UseStaticFiles();
 
-app.UseHttpsRedirection();
+// ❌ REMOVIDO: Railway já cuida do HTTPS
+// app.UseHttpsRedirection();
+
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
