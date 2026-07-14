@@ -22,15 +22,24 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🔥 ESSENCIAL PARA SERVIR HTML NO RAILWAY
-app.UseDefaultFiles();   // procura index.html automaticamente
+
+// ⭐ MIGRATIONS AUTOMÁTICAS (ESSENCIAL NO RAILWAY)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();   // cria tabelas automaticamente
+}
+
+
+// ⭐ SERVIR ARQUIVOS HTML
+app.UseDefaultFiles();   // procura index.html
 app.UseStaticFiles();    // libera wwwroot
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-// 🔥 Fallback para qualquer rota não-API
+// ⭐ Fallback para SPA
 app.MapFallbackToFile("index.html");
 
 app.Run();
