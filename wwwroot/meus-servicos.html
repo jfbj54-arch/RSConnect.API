@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Meus Serviços</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        .servico { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .servico:last-child { border-bottom: none; }
+        button { padding: 6px 10px; margin-top: 5px; }
+        a { display: block; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Meus Serviços</h2>
+    <div id="lista"></div>
+    <a href="home.html">Voltar para Home</a>
+</div>
+
+<script>
+    function getClienteId() {
+        return 1; // depois vamos pegar do login
+    }
+
+    async function carregarServicos() {
+        const lista = document.getElementById('lista');
+        lista.innerHTML = 'Carregando...';
+
+        try {
+            const resp = await fetch('/api/servicos/cliente/' + getClienteId());
+            if (!resp.ok) {
+                lista.innerHTML = 'Erro ao carregar serviços.';
+                return;
+            }
+
+            const dados = await resp.json();
+
+            if (!dados.length) {
+                lista.innerHTML = 'Você ainda não solicitou nenhum serviço.';
+                return;
+            }
+
+            lista.innerHTML = '';
+
+            dados.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'servico';
+                div.innerHTML = `
+                    <strong>Categoria:</strong> ${s.categoria}<br>
+                    <strong>Status:</strong> ${s.status}<br>
+                    <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
+                    <button onclick="detalhes(${s.id})">Ver detalhes</button>
+                `;
+                lista.appendChild(div);
+            });
+        } catch (e) {
+            lista.innerHTML = 'Erro de conexão com o servidor.';
+        }
+    }
+
+    function detalhes(id) {
+        window.location.href = 'detalhes-servico.html?id=' + id;
+    }
+
+    carregarServicos();
+</script>
+</body>
+</html>

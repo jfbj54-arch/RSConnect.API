@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Serviço</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        button { padding: 8px 12px; margin-top: 10px; }
+        a { display: block; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Detalhes do Serviço</h2>
+    <div id="info"></div>
+
+    <button onclick="iniciar()">Iniciar Serviço</button>
+    <button onclick="concluir()">Concluir Serviço</button>
+
+    <a href="servicos-aceitos.html">Voltar</a>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    async function carregar() {
+        const info = document.getElementById('info');
+
+        try {
+            const resp = await fetch(`/api/servicos/${id}`);
+            const s = await resp.json();
+
+            info.innerHTML = `
+                <strong>Categoria:</strong> ${s.categoria}<br>
+                <strong>Descrição:</strong> ${s.descricao}<br>
+                <strong>Endereço:</strong> ${s.endereco}<br>
+                <strong>Status:</strong> ${s.status}<br>
+                <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
+            `;
+        } catch {
+            info.innerHTML = 'Erro ao carregar serviço.';
+        }
+    }
+
+    async function iniciar() {
+        await fetch(`/api/servicos/status/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "Em andamento" })
+        });
+
+        alert('Serviço iniciado!');
+        carregar();
+    }
+
+    async function concluir() {
+        await fetch(`/api/servicos/concluir/${id}`, {
+            method: 'PUT'
+        });
+
+        alert('Serviço concluído!');
+        carregar();
+    }
+
+    carregar();
+</script>
+</body>
+</html>

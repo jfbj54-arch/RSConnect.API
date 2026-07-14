@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Serviço</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        a { display: block; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Detalhes do Serviço</h2>
+    <div id="detalhes"></div>
+    <a href="meus-servicos.html">Voltar para Meus Serviços</a>
+</div>
+
+<script>
+    function getIdFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('id');
+    }
+
+    async function carregarDetalhes() {
+        const id = getIdFromQuery();
+        const div = document.getElementById('detalhes');
+
+        if (!id) {
+            div.innerHTML = 'ID do serviço não informado.';
+            return;
+        }
+
+        try {
+            const resp = await fetch('/api/servicos/' + id);
+            if (!resp.ok) {
+                div.innerHTML = 'Serviço não encontrado.';
+                return;
+            }
+
+            const s = await resp.json();
+
+            div.innerHTML = `
+                <p><strong>Categoria:</strong> ${s.categoria}</p>
+                <p><strong>Descrição:</strong> ${s.descricao}</p>
+                <p><strong>Endereço:</strong> ${s.endereco}</p>
+                <p><strong>Status:</strong> ${s.status}</p>
+                <p><strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}</p>
+            `;
+        } catch (e) {
+            div.innerHTML = 'Erro de conexão com o servidor.';
+        }
+    }
+
+    carregarDetalhes();
+</script>
+</body>
+</html>

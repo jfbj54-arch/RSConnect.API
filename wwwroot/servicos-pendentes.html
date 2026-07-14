@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Serviços Pendentes</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        .servico { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .servico:last-child { border-bottom: none; }
+        button { padding: 6px 10px; margin-top: 5px; }
+        a { display: block; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Serviços Pendentes</h2>
+    <div id="lista"></div>
+    <a href="login-prestador.html">Sair</a>
+</div>
+
+<script>
+    async function carregarPendentes() {
+        const lista = document.getElementById('lista');
+        lista.innerHTML = 'Carregando...';
+
+        try {
+            const resp = await fetch('/api/servicos/pendentes');
+
+            if (!resp.ok) {
+                lista.innerHTML = 'Erro ao carregar serviços.';
+                return;
+            }
+
+            const dados = await resp.json();
+
+            if (!dados.length) {
+                lista.innerHTML = 'Nenhum serviço pendente.';
+                return;
+            }
+
+            lista.innerHTML = '';
+
+            dados.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'servico';
+                div.innerHTML = `
+                    <strong>Categoria:</strong> ${s.categoria}<br>
+                    <strong>Descrição:</strong> ${s.descricao}<br>
+                    <strong>Endereço:</strong> ${s.endereco}<br>
+                    <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
+                    <button onclick="aceitar(${s.id})">Aceitar Serviço</button>
+                `;
+                lista.appendChild(div);
+            });
+        } catch (e) {
+            lista.innerHTML = 'Erro de conexão com o servidor.';
+        }
+    }
+
+    async function aceitar(id) {
+        const prestadorId = localStorage.getItem('prestadorId');
+
+        if (!prestadorId) {
+            alert('Faça login novamente.');
+            window.location.href = 'login-prestador.html';
+            return;
+        }
+
+        const body = {
+            prestadorId: parseInt(prestadorId)
+        };
+
+        const resp = await fetch(`/api/servicos/aceitar/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (resp.ok) {
+            alert('Serviço aceito com sucesso!');
+            carregarPendentes();
+        } else {
+            alert('Erro ao aceitar serviço.');
+        }
+    }
+
+    carregarPendentes();
+</script>
+</body>
+</html>

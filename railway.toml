@@ -1,7 +1,13 @@
+# railway.toml
+
+[build]
+dockerfile = "Dockerfile"
+context = "."
+
 [service]
 name = "rsconnect-api"
-start = "dotnet RSConnect.API.dll"
 port = 8080
 
 [env]
 ASPNETCORE_ENVIRONMENT = "Production"
+ASPNETCORE_URLS = "http://+:8080"

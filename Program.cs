@@ -22,14 +22,15 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🔥 IMPORTANTE: SERVIR ARQUIVOS HTML, CSS, JS
-app.UseStaticFiles();
-
-// ❌ REMOVIDO: Railway já cuida do HTTPS
-// app.UseHttpsRedirection();
+// 🔥 ESSENCIAL PARA SERVIR HTML NO RAILWAY
+app.UseDefaultFiles();   // procura index.html automaticamente
+app.UseStaticFiles();    // libera wwwroot
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+// 🔥 Fallback para qualquer rota não-API
+app.MapFallbackToFile("index.html");
 
 app.Run();
