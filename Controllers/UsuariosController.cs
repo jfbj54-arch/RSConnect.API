@@ -15,6 +15,7 @@ namespace RSConnect.API.Controllers
             _service = service;
         }
 
+        // GET api/usuarios
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -22,6 +23,7 @@ namespace RSConnect.API.Controllers
             return Ok(usuarios);
         }
 
+        // GET api/usuarios/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -32,6 +34,7 @@ namespace RSConnect.API.Controllers
             return Ok(usuario);
         }
 
+        // POST api/usuarios
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Usuario usuario)
         {
@@ -42,6 +45,7 @@ namespace RSConnect.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = novoUsuario.id }, novoUsuario);
         }
 
+        // PUT api/usuarios/5
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Usuario usuario)
         {
@@ -52,6 +56,7 @@ namespace RSConnect.API.Controllers
             return Ok(atualizado);
         }
 
+        // DELETE api/usuarios/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -61,6 +66,19 @@ namespace RSConnect.API.Controllers
                 return NotFound(new { message = "Usuário não encontrado" });
 
             return Ok(new { message = "Usuário removido com sucesso" });
+        }
+
+        // ⭐ LOGIN
+        // POST api/usuarios/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] Usuario usuario)
+        {
+            var usuarioExistente = await _service.Login(usuario.email, usuario.senha);
+
+            if (usuarioExistente == null)
+                return Unauthorized(new { message = "Email ou senha incorretos" });
+
+            return Ok(usuarioExistente);
         }
     }
 }

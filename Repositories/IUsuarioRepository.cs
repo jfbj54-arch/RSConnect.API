@@ -6,9 +6,10 @@ namespace RSConnect.API.Repositories
     {
         Task<IEnumerable<Usuario>> GetAll();
         Task<Usuario?> GetById(int id);
-
-        // 🔥 NOVO MÉTODO PARA LOGIN
         Task<Usuario?> GetByEmail(string email);
+
+        // ⭐ LOGIN
+        Task<Usuario?> Login(string email, string senha);
 
         Task<Usuario> Create(Usuario usuario);
         Task<Usuario> Update(Usuario usuario);
