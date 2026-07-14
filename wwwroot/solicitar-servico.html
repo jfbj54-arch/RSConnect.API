@@ -2,94 +2,71 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Solicitar Serviço</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 400px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        input, select, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
-        button { width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; cursor: pointer; }
-        a { display: block; margin-top: 10px; text-align: center; }
-        .msg { margin-top: 10px; text-align: center; }
-    </style>
+    <title>RSConnect - Solicitar Serviço</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Solicitar Serviço</h2>
+<body class="bg-dark">
 
-    <label>Categoria</label>
-    <select id="categoria">
-        <option value="Eletricista">Eletricista</option>
-        <option value="Encanador">Encanador</option>
-        <option value="Pintor">Pintor</option>
-        <option value="Informática">Informática</option>
-        <option value="Diarista">Diarista</option>
-    </select>
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
 
-    <label>Descrição</label>
-    <textarea id="descricao"></textarea>
+    <h2 class="title">Solicitar Serviço</h2>
 
-    <label>Endereço</label>
-    <input type="text" id="endereco">
-
-    <label>Data e hora</label>
+    <input type="text" id="categoria" placeholder="Categoria do serviço">
+    <textarea id="descricao" placeholder="Descreva o serviço" rows="4"></textarea>
+    <input type="text" id="endereco" placeholder="Endereço">
     <input type="datetime-local" id="dataHora">
 
-    <button onclick="solicitar()">Solicitar</button>
+    <button class="btn-primary" onclick="criarServico()">Enviar solicitação</button>
 
-    <a href="home.html">Voltar para Home</a>
+    <p class="link">
+        <a href="home.html">Voltar</a>
+    </p>
 
-    <div id="mensagem" class="msg"></div>
+    <p id="erro" class="erro"></p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    function getClienteId() {
-        // Por enquanto, fixo. Depois vamos pegar do login.
-        return 1;
+async function criarServico() {
+    const clienteId = localStorage.getItem("usuarioId");
+
+    const categoria = document.getElementById("categoria").value;
+    const descricao = document.getElementById("descricao").value;
+    const endereco = document.getElementById("endereco").value;
+    const dataHora = document.getElementById("dataHora").value;
+
+    if (!categoria || !descricao || !endereco || !dataHora) {
+        document.getElementById("erro").innerText = "Preencha todos os campos";
+        return;
     }
 
-    async function solicitar() {
-        const categoria = document.getElementById('categoria').value;
-        const descricao = document.getElementById('descricao').value;
-        const endereco = document.getElementById('endereco').value;
-        const dataHora = document.getElementById('dataHora').value;
+    const data = {
+        clienteId,
+        categoria,
+        descricao,
+        endereco,
+        dataHora,
+        status: "Solicitado"
+    };
 
-        const mensagem = document.getElementById('mensagem');
+    try {
+        const result = await apiPost("servicos", data);
 
-        if (!categoria || !descricao || !endereco || !dataHora) {
-            mensagem.innerText = 'Preencha todos os campos.';
-            mensagem.style.color = 'red';
-            return;
+        if (result.id) {
+            alert("Serviço solicitado com sucesso!");
+            window.location.href = "home.html";
+        } else {
+            document.getElementById("erro").innerText = "Erro ao solicitar serviço";
         }
-
-        const body = {
-            clienteId: getClienteId(),
-            categoria,
-            descricao,
-            endereco,
-            dataHora: new Date(dataHora).toISOString()
-        };
-
-        try {
-            const resp = await fetch('/api/servicos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (!resp.ok) {
-                mensagem.innerText = 'Erro ao solicitar serviço.';
-                mensagem.style.color = 'red';
-                return;
-            }
-
-            const data = await resp.json();
-            mensagem.innerText = 'Serviço solicitado com sucesso! ID: ' + data.id;
-            mensagem.style.color = 'green';
-        } catch (e) {
-            mensagem.innerText = 'Erro de conexão com o servidor.';
-            mensagem.style.color = 'red';
-        }
+    } catch {
+        document.getElementById("erro").innerText = "Erro ao conectar ao servidor";
     }
+}
 </script>
+
 </body>
 </html>

@@ -2,55 +2,64 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>RS Connect - Home</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            width: 350px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #ccc;
-            text-align: center;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            background: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #0056c7;
-        }
-    </style>
+    <title>RSConnect - Meus Serviços</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="bg-dark">
 
-<div class="container">
-    <h2 id="titulo">Bem-vindo!</h2>
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
 
-    <button onclick="window.location.href='cadastro.html'">Cadastrar Usuário</button>
-    <button onclick="window.location.href='login.html'">Sair</button>
+    <h2 class="title">Meus Serviços</h2>
+
+    <div id="lista"></div>
+
+    <button class="btn-primary" onclick="window.location.href='solicitar-servico.html'">
+        Solicitar novo serviço
+    </button>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    // Recupera o nome do usuário salvo no login
-    const nome = localStorage.getItem("usuarioNome");
+async function carregarServicos() {
+    const usuarioId = localStorage.getItem("usuarioId");
 
-    if (nome) {
-        document.getElementById("titulo").innerText = "Bem-vindo, " + nome;
+    if (!usuarioId) {
+        window.location.href = "index.html";
+        return;
     }
+
+    const servicos = await apiGet(`servicos/cliente/${usuarioId}`);
+    const lista = document.getElementById("lista");
+
+    if (!servicos || servicos.length === 0) {
+        lista.innerHTML = "<p style='text-align:center; margin-top:10px;'>Nenhum serviço encontrado.</p>";
+        return;
+    }
+
+    lista.innerHTML = "";
+
+    servicos.forEach(s => {
+        lista.innerHTML += `
+            <div class="card">
+                <h3>${s.categoria}</h3>
+                <p>${s.descricao}</p>
+                <p><strong>Status:</strong> ${s.status}</p>
+                <button class="btn-primary" onclick="detalhes(${s.id})">Ver detalhes</button>
+            </div>
+        `;
+    });
+}
+
+function detalhes(id) {
+    localStorage.setItem("servicoId", id);
+    window.location.href = "detalhes-servico.html";
+}
+
+carregarServicos();
 </script>
 
 </body>

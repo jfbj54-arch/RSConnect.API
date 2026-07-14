@@ -2,69 +2,65 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Meus Serviços</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        .servico { border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .servico:last-child { border-bottom: none; }
-        button { padding: 6px 10px; margin-top: 5px; }
-        a { display: block; margin-top: 10px; text-align: center; }
-    </style>
+    <title>RSConnect - Meus Serviços</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Meus Serviços</h2>
+<body class="bg-dark">
+
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
+
+    <h2 class="title">Meus Serviços</h2>
+
     <div id="lista"></div>
-    <a href="home.html">Voltar para Home</a>
+
+    <p class="link">
+        <a href="home.html">Voltar</a>
+    </p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    function getClienteId() {
-        return 1; // depois vamos pegar do login
+async function carregarServicos() {
+    const usuarioId = localStorage.getItem("usuarioId");
+
+    if (!usuarioId) {
+        window.location.href = "index.html";
+        return;
     }
 
-    async function carregarServicos() {
-        const lista = document.getElementById('lista');
-        lista.innerHTML = 'Carregando...';
+    const servicos = await apiGet(`servicos/cliente/${usuarioId}`);
+    const lista = document.getElementById("lista");
 
-        try {
-            const resp = await fetch('/api/servicos/cliente/' + getClienteId());
-            if (!resp.ok) {
-                lista.innerHTML = 'Erro ao carregar serviços.';
-                return;
-            }
-
-            const dados = await resp.json();
-
-            if (!dados.length) {
-                lista.innerHTML = 'Você ainda não solicitou nenhum serviço.';
-                return;
-            }
-
-            lista.innerHTML = '';
-
-            dados.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'servico';
-                div.innerHTML = `
-                    <strong>Categoria:</strong> ${s.categoria}<br>
-                    <strong>Status:</strong> ${s.status}<br>
-                    <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
-                    <button onclick="detalhes(${s.id})">Ver detalhes</button>
-                `;
-                lista.appendChild(div);
-            });
-        } catch (e) {
-            lista.innerHTML = 'Erro de conexão com o servidor.';
-        }
+    if (!servicos || servicos.length === 0) {
+        lista.innerHTML = "<p style='text-align:center; margin-top:10px;'>Nenhum serviço encontrado.</p>";
+        return;
     }
 
-    function detalhes(id) {
-        window.location.href = 'detalhes-servico.html?id=' + id;
-    }
+    lista.innerHTML = "";
 
-    carregarServicos();
+    servicos.forEach(s => {
+        lista.innerHTML += `
+            <div class="card">
+                <h3>${s.categoria}</h3>
+                <p>${s.descricao}</p>
+                <p><strong>Status:</strong> ${s.status}</p>
+                <button class="btn-primary" onclick="detalhes(${s.id})">Ver detalhes</button>
+            </div>
+        `;
+    });
+}
+
+function detalhes(id) {
+    localStorage.setItem("servicoId", id);
+    window.location.href = "detalhes-servico.html";
+}
+
+carregarServicos();
 </script>
+
 </body>
 </html>

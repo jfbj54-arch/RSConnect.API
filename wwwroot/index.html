@@ -1,10 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>RSConnect</title>
+    <meta charset="UTF-8">
+    <title>RSConnect - Login</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <h1>RSConnect API</h1>
-    <p>Página inicial carregada com sucesso.</p>
+<body class="bg-dark">
+
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
+
+    <h2 class="title">Acesse sua conta</h2>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="senha" placeholder="Senha">
+
+    <button class="btn-primary" onclick="login()">Entrar</button>
+
+    <p class="link">
+        Não tem conta? <a href="cadastro.html">Cadastre-se</a>
+    </p>
+
+    <p class="link">
+        É prestador? <a href="login-prestador.html">Entrar como prestador</a>
+    </p>
+
+    <p id="erro" class="erro"></p>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+
 </body>
 </html>

@@ -2,98 +2,70 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastrar Prestador</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 400px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        input, select { width: 100%; margin-bottom: 10px; padding: 8px; }
-        button { width: 100%; padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; }
-        .msg { margin-top: 10px; text-align: center; }
-        a { display: block; margin-top: 10px; text-align: center; }
-    </style>
+    <title>RSConnect - Cadastro de Prestador</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Cadastrar Prestador</h2>
+<body class="bg-dark">
 
-    <label>Nome</label>
-    <input type="text" id="nome">
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
 
-    <label>Email</label>
-    <input type="email" id="email">
+    <h2 class="title">Cadastro de Prestador</h2>
 
-    <label>Senha</label>
-    <input type="password" id="senha">
+    <input type="text" id="nome" placeholder="Nome completo">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="senha" placeholder="Senha">
+    <input type="text" id="categoria" placeholder="Categoria de serviço (ex: Eletricista)">
+    <input type="text" id="telefone" placeholder="Telefone">
 
-    <label>Telefone</label>
-    <input type="text" id="telefone">
+    <button class="btn-primary" onclick="cadastrarPrestador()">Cadastrar</button>
 
-    <label>Categoria</label>
-    <select id="categoria">
-        <option value="Eletricista">Eletricista</option>
-        <option value="Encanador">Encanador</option>
-        <option value="Pintor">Pintor</option>
-        <option value="Informática">Informática</option>
-        <option value="Diarista">Diarista</option>
-    </select>
+    <p class="link">
+        Já é prestador? <a href="login-prestador.html">Entrar</a>
+    </p>
 
-    <label>Endereço</label>
-    <input type="text" id="endereco">
-
-    <button onclick="cadastrar()">Cadastrar</button>
-
-    <a href="login-prestador.html">Já tenho conta</a>
-
-    <div id="mensagem" class="msg"></div>
+    <p id="erro" class="erro"></p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    async function cadastrar() {
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
-        const telefone = document.getElementById('telefone').value;
-        const categoria = document.getElementById('categoria').value;
-        const endereco = document.getElementById('endereco').value;
+async function cadastrarPrestador() {
+    const nome = document.getElementById("nome").value;
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    const categoria = document.getElementById("categoria").value;
+    const telefone = document.getElementById("telefone").value;
 
-        const msg = document.getElementById('mensagem');
-
-        if (!nome || !email || !senha || !telefone || !categoria || !endereco) {
-            msg.innerText = 'Preencha todos os campos.';
-            msg.style.color = 'red';
-            return;
-        }
-
-        const body = {
-            nome,
-            email,
-            senha,
-            telefone,
-            categoria,
-            endereco
-        };
-
-        try {
-            const resp = await fetch('/api/prestadores/cadastrar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (!resp.ok) {
-                const erro = await resp.json();
-                msg.innerText = erro.message || 'Erro ao cadastrar.';
-                msg.style.color = 'red';
-                return;
-            }
-
-            msg.innerText = 'Cadastro realizado com sucesso!';
-            msg.style.color = 'green';
-        } catch (e) {
-            msg.innerText = 'Erro de conexão com o servidor.';
-            msg.style.color = 'red';
-        }
+    if (!nome || !email || !senha || !categoria || !telefone) {
+        document.getElementById("erro").innerText = "Preencha todos os campos";
+        return;
     }
+
+    const data = {
+        nome,
+        email,
+        senha,
+        categoria,
+        telefone
+    };
+
+    try {
+        const result = await apiPost("prestadores", data);
+
+        if (result.id) {
+            alert("Prestador cadastrado com sucesso!");
+            window.location.href = "login-prestador.html";
+        } else {
+            document.getElementById("erro").innerText = "Erro ao cadastrar prestador";
+        }
+    } catch {
+        document.getElementById("erro").innerText = "Erro ao conectar ao servidor";
+    }
+}
 </script>
+
 </body>
 </html>

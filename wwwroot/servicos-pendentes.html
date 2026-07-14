@@ -2,90 +2,83 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Serviços Pendentes</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        .servico { border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .servico:last-child { border-bottom: none; }
-        button { padding: 6px 10px; margin-top: 5px; }
-        a { display: block; margin-top: 10px; text-align: center; }
-    </style>
+    <title>RSConnect - Serviços Pendentes</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Serviços Pendentes</h2>
+<body class="bg-dark">
+
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
+
+    <h2 class="title">Serviços Pendentes</h2>
+
     <div id="lista"></div>
-    <a href="login-prestador.html">Sair</a>
+
+    <p class="link">
+        <a href="login-prestador.html">Sair</a>
+    </p>
+
+    <p id="erro" class="erro"></p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    async function carregarPendentes() {
-        const lista = document.getElementById('lista');
-        lista.innerHTML = 'Carregando...';
+async function carregarPendentes() {
+    const prestadorId = localStorage.getItem("prestadorId");
 
-        try {
-            const resp = await fetch('/api/servicos/pendentes');
-
-            if (!resp.ok) {
-                lista.innerHTML = 'Erro ao carregar serviços.';
-                return;
-            }
-
-            const dados = await resp.json();
-
-            if (!dados.length) {
-                lista.innerHTML = 'Nenhum serviço pendente.';
-                return;
-            }
-
-            lista.innerHTML = '';
-
-            dados.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'servico';
-                div.innerHTML = `
-                    <strong>Categoria:</strong> ${s.categoria}<br>
-                    <strong>Descrição:</strong> ${s.descricao}<br>
-                    <strong>Endereço:</strong> ${s.endereco}<br>
-                    <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
-                    <button onclick="aceitar(${s.id})">Aceitar Serviço</button>
-                `;
-                lista.appendChild(div);
-            });
-        } catch (e) {
-            lista.innerHTML = 'Erro de conexão com o servidor.';
-        }
+    if (!prestadorId) {
+        window.location.href = "login-prestador.html";
+        return;
     }
 
-    async function aceitar(id) {
-        const prestadorId = localStorage.getItem('prestadorId');
+    const servicos = await apiGet("servicos/pendentes");
+    const lista = document.getElementById("lista");
 
-        if (!prestadorId) {
-            alert('Faça login novamente.');
-            window.location.href = 'login-prestador.html';
-            return;
-        }
+    if (!servicos || servicos.length === 0) {
+        lista.innerHTML = "<p style='text-align:center; margin-top:10px;'>Nenhum serviço pendente.</p>";
+        return;
+    }
 
-        const body = {
-            prestadorId: parseInt(prestadorId)
-        };
+    lista.innerHTML = "";
 
-        const resp = await fetch(`/api/servicos/aceitar/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
+    servicos.forEach(s => {
+        lista.innerHTML += `
+            <div class="card">
+                <h3>${s.categoria}</h3>
+                <p>${s.descricao}</p>
+                <p><strong>Endereço:</strong> ${s.endereco}</p>
+                <p><strong>Data e Hora:</strong> ${s.dataHora}</p>
 
-        if (resp.ok) {
-            alert('Serviço aceito com sucesso!');
-            carregarPendentes();
+                <button class="btn-primary" onclick="aceitar(${s.id})">
+                    Aceitar serviço
+                </button>
+            </div>
+        `;
+    });
+}
+
+async function aceitar(id) {
+    const prestadorId = localStorage.getItem("prestadorId");
+
+    try {
+        const result = await apiPost(`servicos/aceitar/${id}`, { prestadorId });
+
+        if (result.id) {
+            alert("Serviço aceito com sucesso!");
+            window.location.href = "servicos-aceitos.html";
         } else {
-            alert('Erro ao aceitar serviço.');
+            document.getElementById("erro").innerText = "Erro ao aceitar serviço";
         }
+    } catch {
+        document.getElementById("erro").innerText = "Erro ao conectar ao servidor";
     }
+}
 
-    carregarPendentes();
+carregarPendentes();
 </script>
+
 </body>
 </html>

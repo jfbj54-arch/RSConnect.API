@@ -22,7 +22,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
 // ⭐ MIGRATIONS AUTOMÁTICAS (ESSENCIAL NO RAILWAY)
 using (var scope = app.Services.CreateScope())
 {
@@ -30,16 +29,19 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();   // cria tabelas automaticamente
 }
 
+// ⭐ DEFINIR inicio.html COMO PÁGINA INICIAL
+var defaultFilesOptions = new DefaultFilesOptions();
+defaultFilesOptions.DefaultFileNames.Clear();
+defaultFilesOptions.DefaultFileNames.Add("inicio.html");
 
-// ⭐ SERVIR ARQUIVOS HTML
-app.UseDefaultFiles();   // procura index.html
-app.UseStaticFiles();    // libera wwwroot
+app.UseDefaultFiles(defaultFilesOptions);
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-// ⭐ Fallback para SPA
-app.MapFallbackToFile("index.html");
+// ⭐ Fallback para SPA (agora aponta para inicio.html)
+app.MapFallbackToFile("inicio.html");
 
 app.Run();

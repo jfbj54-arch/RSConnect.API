@@ -2,69 +2,59 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Detalhes do Serviço</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        button { padding: 8px 12px; margin-top: 10px; }
-        a { display: block; margin-top: 20px; text-align: center; }
-    </style>
+    <title>RSConnect - Detalhes do Serviço</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Detalhes do Serviço</h2>
-    <div id="info"></div>
+<body class="bg-dark">
 
-    <button onclick="iniciar()">Iniciar Serviço</button>
-    <button onclick="concluir()">Concluir Serviço</button>
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
 
-    <a href="servicos-aceitos.html">Voltar</a>
+    <h2 class="title">Detalhes do Serviço</h2>
+
+    <div id="detalhes"></div>
+
+    <p class="link">
+        <a href="servicos-aceitos.html">Voltar</a>
+    </p>
+
+    <p id="erro" class="erro"></p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
+async function carregarDetalhes() {
+    const servicoId = localStorage.getItem("servicoId");
 
-    async function carregar() {
-        const info = document.getElementById('info');
-
-        try {
-            const resp = await fetch(`/api/servicos/${id}`);
-            const s = await resp.json();
-
-            info.innerHTML = `
-                <strong>Categoria:</strong> ${s.categoria}<br>
-                <strong>Descrição:</strong> ${s.descricao}<br>
-                <strong>Endereço:</strong> ${s.endereco}<br>
-                <strong>Status:</strong> ${s.status}<br>
-                <strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}<br>
-            `;
-        } catch {
-            info.innerHTML = 'Erro ao carregar serviço.';
-        }
+    if (!servicoId) {
+        document.getElementById("erro").innerText = "Serviço não encontrado.";
+        return;
     }
 
-    async function iniciar() {
-        await fetch(`/api/servicos/status/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "Em andamento" })
-        });
+    const servico = await apiGet(`servicos/${servicoId}`);
+    const div = document.getElementById("detalhes");
 
-        alert('Serviço iniciado!');
-        carregar();
+    if (!servico) {
+        div.innerHTML = "<p>Erro ao carregar detalhes.</p>";
+        return;
     }
 
-    async function concluir() {
-        await fetch(`/api/servicos/concluir/${id}`, {
-            method: 'PUT'
-        });
+    div.innerHTML = `
+        <div class="card">
+            <h3>${servico.categoria}</h3>
+            <p><strong>Descrição:</strong> ${servico.descricao}</p>
+            <p><strong>Endereço:</strong> ${servico.endereco}</p>
+            <p><strong>Data e Hora:</strong> ${servico.dataHora}</p>
+            <p><strong>Status:</strong> ${servico.status}</p>
+        </div>
+    `;
+}
 
-        alert('Serviço concluído!');
-        carregar();
-    }
-
-    carregar();
+carregarDetalhes();
 </script>
+
 </body>
 </html>

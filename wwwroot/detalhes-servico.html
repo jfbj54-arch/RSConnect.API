@@ -2,57 +2,59 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Detalhes do Serviço</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; }
-        .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        a { display: block; margin-top: 10px; text-align: center; }
-    </style>
+    <title>RSConnect - Detalhes do Serviço</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container">
-    <h2>Detalhes do Serviço</h2>
+<body class="bg-dark">
+
+<div class="login-card">
+    <div class="logo-area">
+        <div class="logo-icon">⚡</div>
+        <h1 class="logo-text">RSConnect</h1>
+    </div>
+
+    <h2 class="title">Detalhes do Serviço</h2>
+
     <div id="detalhes"></div>
-    <a href="meus-servicos.html">Voltar para Meus Serviços</a>
+
+    <p class="link">
+        <a href="meus-servicos.html">Voltar</a>
+    </p>
+
+    <p id="erro" class="erro"></p>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-    function getIdFromQuery() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('id');
+async function carregarDetalhes() {
+    const servicoId = localStorage.getItem("servicoId");
+
+    if (!servicoId) {
+        document.getElementById("erro").innerText = "Serviço não encontrado.";
+        return;
     }
 
-    async function carregarDetalhes() {
-        const id = getIdFromQuery();
-        const div = document.getElementById('detalhes');
+    const servico = await apiGet(`servicos/${servicoId}`);
+    const div = document.getElementById("detalhes");
 
-        if (!id) {
-            div.innerHTML = 'ID do serviço não informado.';
-            return;
-        }
-
-        try {
-            const resp = await fetch('/api/servicos/' + id);
-            if (!resp.ok) {
-                div.innerHTML = 'Serviço não encontrado.';
-                return;
-            }
-
-            const s = await resp.json();
-
-            div.innerHTML = `
-                <p><strong>Categoria:</strong> ${s.categoria}</p>
-                <p><strong>Descrição:</strong> ${s.descricao}</p>
-                <p><strong>Endereço:</strong> ${s.endereco}</p>
-                <p><strong>Status:</strong> ${s.status}</p>
-                <p><strong>Data/Hora:</strong> ${new Date(s.dataHora).toLocaleString()}</p>
-            `;
-        } catch (e) {
-            div.innerHTML = 'Erro de conexão com o servidor.';
-        }
+    if (!servico) {
+        div.innerHTML = "<p>Erro ao carregar detalhes.</p>";
+        return;
     }
 
-    carregarDetalhes();
+    div.innerHTML = `
+        <div class="card">
+            <h3>${servico.categoria}</h3>
+            <p><strong>Descrição:</strong> ${servico.descricao}</p>
+            <p><strong>Endereço:</strong> ${servico.endereco}</p>
+            <p><strong>Data e Hora:</strong> ${servico.dataHora}</p>
+            <p><strong>Status:</strong> ${servico.status}</p>
+        </div>
+    `;
+}
+
+carregarDetalhes();
 </script>
+
 </body>
 </html>
