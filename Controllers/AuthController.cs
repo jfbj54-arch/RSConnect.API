@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RSConnect.API.Models;
 using RSConnect.API.Services;
 
 namespace RSConnect.API.Controllers
@@ -7,37 +8,22 @@ namespace RSConnect.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IUsuarioService _service;
+        private readonly IUsuarioService _usuarioService;
 
-        public AuthController(IUsuarioService service)
+        public AuthController(IUsuarioService usuarioService)
         {
-            _service = service;
+            _usuarioService = usuarioService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] Usuario usuario)
         {
-            var usuario = await _service.GetByEmail(request.Email);
+            var user = await _usuarioService.Login(usuario.email, usuario.senha);
 
-            if (usuario == null)
-                return Unauthorized(new { message = "Email não encontrado" });
+            if (user == null)
+                return Unauthorized(new { message = "Email ou senha inválidos" });
 
-            // CORRIGIDO: Senha com S maiúsculo
-            if (usuario.Senha != request.Senha)
-                return Unauthorized(new { message = "Senha incorreta" });
-
-            return Ok(new
-            {
-                id = usuario.id,
-                nome = usuario.nome,
-                email = usuario.email
-            });
+            return Ok(user);
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Senha { get; set; }
     }
 }
