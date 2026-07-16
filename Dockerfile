@@ -12,6 +12,7 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
+ENV DATABASE_URL=${DATABASE_URL}
 ENV ASPNETCORE_URLS=http://+:8080
 
 EXPOSE 8080
