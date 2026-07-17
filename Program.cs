@@ -1,18 +1,41 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using RSConnect.API.Data;
 using RSConnect.API.Services;
 using RSConnect.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// PEGAR CONNECTION STRING DO RAILWAY
-var connectionString = builder.Configuration["DATABASE_URL"];
+// PEGAR DATABASE_URL DO RENDER
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-// CONFIGURAÇÃO DO BANCO (Postgres Railway)
+if (string.IsNullOrEmpty(databaseUrl))
+{
+    throw new Exception("DATABASE_URL não encontrada nas variáveis de ambiente!");
+}
+
+// CONVERTER URL PARA CONNECTION STRING
+var uri = new Uri(databaseUrl);
+var userInfo = uri.UserInfo.Split(':');
+
+var connectionStringBuilder = new NpgsqlConnectionStringBuilder
+{
+    Host = uri.Host,
+    Port = uri.Port,
+    Username = userInfo[0],
+    Password = userInfo[1],
+    Database = uri.AbsolutePath.TrimStart('/'),
+    SslMode = SslMode.Require,
+    TrustServerCertificate = true
+};
+
+var connectionString = connectionStringBuilder.ToString();
+
+// CONFIGURAÇÃO DO BANCO
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// INJEÇÃO DE DEPENDÊNCIA DOS SERVIÇOS E REPOSITÓRIOS
+// INJEÇÃO DE DEPENDÊNCIA
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
@@ -20,28 +43,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
-// ⭐ MIGRATIONS AUTOMÁTICAS (ESSENCIAL NO RAILWAY)
+// MIGRATIONS AUTOMÁTICAS
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();   // cria tabelas automaticamente
+    db.Database.Migrate();
 }
 
-// ⭐ DEFINIR inicio.html COMO PÁGINA INICIAL
-var defaultFilesOptions = new DefaultFilesOptions();
-defaultFilesOptions.DefaultFileNames.Clear();
-defaultFilesOptions.DefaultFileNames.Add("inicio.html");
-
-app.UseDefaultFiles(defaultFilesOptions);
-app.UseStaticFiles();
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-// ⭐ Fallback para SPA (agora aponta para inicio.html)
-app.MapFallbackToFile("inicio.html");
 
 app.Run();
