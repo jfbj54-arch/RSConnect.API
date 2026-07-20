@@ -1,19 +1,41 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using RSConnect.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Lê a porta que o Railway exige
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+// PEGAR DATABASE_URL DO RENDER
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-builder.WebHost.ConfigureKestrel(options =>
+if (string.IsNullOrEmpty(databaseUrl))
 {
-    options.ListenAnyIP(int.Parse(port));
-});
+    throw new Exception("DATABASE_URL não encontrada nas variáveis de ambiente!");
+}
 
-// Conexão com PostgreSQL (Railway)
+// CONVERTER URL PARA CONNECTION STRING
+var uri = new Uri(databaseUrl);
+var userInfo = uri.UserInfo.Split(':');
+
+var connectionStringBuilder = new NpgsqlConnectionStringBuilder
+{
+    Host = uri.Host,
+    Port = uri.Port,
+    Username = userInfo[0],
+    Password = userInfo[1],
+    Database = uri.AbsolutePath.TrimStart('/'),
+    SslMode = SslMode.Require,
+    TrustServerCertificate = true
+};
+
+var connectionString = connectionStringBuilder.ToString();
+
+// CONFIGURAÇÃO DO BANCO
 builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
+// INJEÇÃO DE DEPENDÊNCIA
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 // Adiciona controllers
 builder.Services.AddControllers();
@@ -29,9 +51,29 @@ builder.Services.AddCors(options =>
     });
 });
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
+// MIGRATIONS AUTOMÁTICAS
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseCors("AllowAll");
+
+app.UseAuthorization();
 
 app.MapControllers();
 
