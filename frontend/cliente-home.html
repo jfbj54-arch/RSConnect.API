@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cliente - RSConnect</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="app-body">
+
+    <header class="app-header">
+        <div class="logo">RSConnect</div>
+        <nav class="nav-links">
+            <a href="#" id="logoutBtn">Sair</a>
+        </nav>
+    </header>
+
+    <main class="cliente-container">
+
+        <section class="cliente-info">
+            <h2 id="clienteNome">Olá, Cliente</h2>
+            <p class="cliente-subtext">Solicite serviços rapidamente.</p>
+        </section>
+
+        <section class="solicitar-card">
+            <h3>Solicitar Serviço</h3>
+
+            <form id="solicitarForm">
+                <label>Tipo de serviço</label>
+                <select id="tipoServico" required>
+                    <option value="">Selecione...</option>
+                    <option>Eletricista</option>
+                    <option>Encanador</option>
+                    <option>Diarista</option>
+                    <option>Pintor</option>
+                    <option>Técnico de Informática</option>
+                    <option>Pedreiro</option>
+                    <option>Jardineiro</option>
+                    <option>Manicure</option>
+                </select>
+
+                <label>Descrição</label>
+                <textarea id="descricao" placeholder="Descreva o problema..." required></textarea>
+
+                <button class="btn primary" type="submit">Enviar Solicitação</button>
+            </form>
+        </section>
+
+        <section class="solicitacoes-lista">
+            <h3>Minhas Solicitações</h3>
+            <p class="cliente-subtext">Em breve você verá suas solicitações aqui.</p>
+        </section>
+
+    </main>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Verifica se o cliente está logado
+        const cliente = JSON.parse(localStorage.getItem("cliente"));
+
+        if (!cliente) {
+            window.location.href = "login.html";
+        }
+
+        // Mostra o nome do cliente
+        document.getElementById("clienteNome").innerText = `Olá, ${cliente.nome}`;
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("cliente");
+            window.location.href = "login.html";
+        });
+
+        // Enviar solicitação (a API será criada depois)
+        document.getElementById("solicitarForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Sistema de solicitações será ativado depois.");
+        });
+    </script>
+
+</body>
+</html>

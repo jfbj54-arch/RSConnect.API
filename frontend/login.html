@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Cliente | RSConnect</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="app-body">
+
+    <header class="app-header">
+        <div class="logo">RSConnect</div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-card">
+            <h2>Entrar como Cliente</h2>
+            <p class="login-subtext">Acesse sua conta e solicite serviços rapidamente.</p>
+
+            <form id="loginForm">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+
+                <label>Senha</label>
+                <input type="password" id="senha" placeholder="••••••••" required>
+
+                <button class="btn primary" type="submit">Entrar</button>
+            </form>
+
+            <p class="login-footer">
+                Não tem conta?
+                <a href="#" id="criarContaBtn">Criar conta</a>
+            </p>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+
+    <script>
+        const form = document.getElementById("loginForm");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const senha = document.getElementById("senha").value;
+
+            const result = await api.loginCliente(email, senha);
+
+            if (result.error) {
+                alert(result.error || "Erro ao fazer login");
+                return;
+            }
+
+            localStorage.setItem("cliente", JSON.stringify(result.data.usuario));
+            window.location.href = "cliente-home.html";
+        });
+
+        document.getElementById("criarContaBtn").addEventListener("click", () => {
+            alert("Cadastro de cliente ainda será criado.");
+        });
+    </script>
+
+</body>
+</html>

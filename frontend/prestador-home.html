@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Prestador - RSConnect</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="app-body">
+
+    <header class="app-header">
+        <div class="logo">RSConnect</div>
+        <nav class="nav-links">
+            <a href="#" id="logoutBtn">Sair</a>
+        </nav>
+    </header>
+
+    <main class="cliente-container">
+
+        <section class="cliente-info">
+            <h2 id="prestadorNome">Olá, Prestador</h2>
+            <p class="cliente-subtext">Aqui você recebe solicitações de serviços.</p>
+        </section>
+
+        <section class="solicitacoes-lista">
+            <h3>Solicitações Recebidas</h3>
+            <p class="cliente-subtext">Em breve você verá solicitações reais aqui.</p>
+        </section>
+
+        <section class="solicitacoes-lista">
+            <h3>Meus Serviços</h3>
+            <p class="cliente-subtext">Histórico de serviços aparecerá aqui.</p>
+        </section>
+
+    </main>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Verifica se o prestador está logado
+        const prestador = JSON.parse(localStorage.getItem("prestador"));
+
+        if (!prestador) {
+            window.location.href = "login-prestador.html";
+        }
+
+        // Mostra o nome do prestador
+        document.getElementById("prestadorNome").innerText = `Olá, ${prestador.nome}`;
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("prestador");
+            window.location.href = "login-prestador.html";
+        });
+    </script>
+
+</body>
+</html>
